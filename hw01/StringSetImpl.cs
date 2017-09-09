@@ -59,17 +59,17 @@
             {
                 return false;
             }
-			Trie current = root;
+            Trie current = root;
             for (int i = 0; i < element.Length; i++)
-			{
+            {
                 current.howManyStartsWithPrefix--;
                 Trie prev = current;
                 current = current.nodes[GetIndex(element[i])];
                 if (current.howManyStartsWithPrefix == 1)
-				{
-					prev.nodes[GetIndex(element[i])] = null;
-				}
-			}
+                {
+                    prev.nodes[GetIndex(element[i])] = null;
+                }
+            }
             current.howManyStartsWithPrefix--;
             current.isTerminated = false;
             return true;
