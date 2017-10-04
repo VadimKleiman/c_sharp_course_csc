@@ -1,1 +1,0 @@
-# c_sharp_course_csc
