@@ -117,15 +117,15 @@ namespace MyTestApplication
                     if (!methods.Any())
                         continue;
                     var instance = Activator.CreateInstance(type);
-                    StartMethodType(result, 
-                                    beforeClass, 
-                                    instance, 
+                    StartMethodType(result,
+                                    beforeClass,
+                                    instance,
                                     FType.FT_BEFORECLASS);
                     foreach (var m in methods)
                     {
-                        StartMethodType(result, 
-                                        before, 
-                                        instance, 
+                        StartMethodType(result,
+                                        before,
+                                        instance,
                                         FType.FT_BEFORE);
                         var nameArgs = m.GetCustomAttributesData()[0].NamedArguments;
                         if (nameArgs.Any() && nameArgs[0].TypedValue.Value is string)
@@ -138,19 +138,19 @@ namespace MyTestApplication
                         }
                         else
                         {
-                            StartMethodType(result, 
-                                            new List<MethodInfo> { m }, 
-                                            instance, 
+                            StartMethodType(result,
+                                            new List<MethodInfo> { m },
+                                            instance,
                                             FType.FT_TEST);
                         }
-                        StartMethodType(result, 
-                                        after, 
-                                        instance, 
+                        StartMethodType(result,
+                                        after,
+                                        instance,
                                         FType.FT_AFTER);
                     }
-                    StartMethodType(result, 
-                                    afterClass, 
-                                    instance, 
+                    StartMethodType(result,
+                                    afterClass,
+                                    instance,
                                     FType.FT_AFTERCLASS);
                 }
 
@@ -158,7 +158,7 @@ namespace MyTestApplication
             return result;
         }
 
-        IEnumerable<MethodInfo> GetMethods(Type instance, 
+        IEnumerable<MethodInfo> GetMethods(Type instance,
                                            Type attr)
         {
             var methods = from method in instance.GetMethods()
