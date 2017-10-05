@@ -1,17 +1,12 @@
 ﻿using System;
+
 namespace hw01
 {
-    class MainClass
+    class Program
     {
-        public static void Main(string[] args) 
+        static void Main(string[] args)
         {
-            IStringSet stringSet = new StringSetImpl();
-            stringSet.Add("abc");
-            stringSet.Add("abcc");
-            stringSet.Remove("abc");
-            Console.WriteLine(stringSet.Contains("abc"));
-            Console.WriteLine(stringSet.Size());
-            Console.WriteLine(stringSet.HowManyStartsWithPrefix("abc"));
+            Console.WriteLine("Hello World!");
         }
     }
 }

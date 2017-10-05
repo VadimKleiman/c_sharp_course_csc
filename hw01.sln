@@ -1,17 +1,23 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hw01", "hw01\hw01.csproj", "{9329AD26-43F3-4A2E-A8F8-C8BF0A7D5726}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hw01", "hw01\hw01.csproj", "{F9DE39B5-0161-4706-9C0D-E8027532AB32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringSetTest", "StringSetTest\StringSetTest.csproj", "{5B9585E3-2177-484F-982B-2AF832773230}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9329AD26-43F3-4A2E-A8F8-C8BF0A7D5726}.Debug|x86.ActiveCfg = Debug|x86
-		{9329AD26-43F3-4A2E-A8F8-C8BF0A7D5726}.Debug|x86.Build.0 = Debug|x86
-		{9329AD26-43F3-4A2E-A8F8-C8BF0A7D5726}.Release|x86.ActiveCfg = Release|x86
-		{9329AD26-43F3-4A2E-A8F8-C8BF0A7D5726}.Release|x86.Build.0 = Release|x86
+		{F9DE39B5-0161-4706-9C0D-E8027532AB32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9DE39B5-0161-4706-9C0D-E8027532AB32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9DE39B5-0161-4706-9C0D-E8027532AB32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9DE39B5-0161-4706-9C0D-E8027532AB32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B9585E3-2177-484F-982B-2AF832773230}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B9585E3-2177-484F-982B-2AF832773230}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B9585E3-2177-484F-982B-2AF832773230}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B9585E3-2177-484F-982B-2AF832773230}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
