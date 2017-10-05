@@ -26,13 +26,13 @@ namespace hw01
                 ++node.HowManyStartsWithPrefix;
             }
 
-            node.IsTerminatal = true;
+            node.IsTerminal = true;
             ++_root.HowManyStartsWithPrefix;
             return true;
         }
 
         public bool Contains(string element)
-            => (Traverse(element)?.IsTerminatal).GetValueOrDefault(false);
+            => (Traverse(element)?.IsTerminal).GetValueOrDefault(false);
 
         public int HowManyStartsWithPrefix(string prefix)
             => (Traverse(prefix)?.HowManyStartsWithPrefix).GetValueOrDefault(0);
@@ -55,7 +55,7 @@ namespace hw01
                 }
             }
             --current.HowManyStartsWithPrefix;
-            current.IsTerminatal = false;
+            current.IsTerminal = false;
             return true;
         }
 
@@ -77,7 +77,7 @@ namespace hw01
 
         private class Trie
         {
-            public bool IsTerminatal { get; set; }
+            public bool IsTerminal { get; set; }
             public int HowManyStartsWithPrefix { get; set; }
             public Dictionary<char, Trie> Nodes { get; }
             public Trie()
