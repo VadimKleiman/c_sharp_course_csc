@@ -13,6 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\hw01\hw01.csproj" />
+    <ProjectReference Include="..\Rougelike\Rougelike.csproj" />
   </ItemGroup>
 </Project>
