@@ -12,12 +12,12 @@ namespace RougelikeTest
 
         public UnitTest()
         {
-            string []map = { "###",
+            string[] map = { "###",
                              "# #",
                              "###"};
             _world = new World(map);
-			_player = new Player(_world);
-			_rw = new RenderWorld(_world, _player);
+            _player = new Player(_world);
+            _rw = new RenderWorld(_world, _player);
         }
 
         [Fact]
@@ -29,22 +29,22 @@ namespace RougelikeTest
             Assert.Equal(x, _player.X);
             Assert.Equal(y, _player.Y);
             _rw.OnRight();
-			Assert.Equal(x, _player.X);
-			Assert.Equal(y, _player.Y);
+            Assert.Equal(x, _player.X);
+            Assert.Equal(y, _player.Y);
             _rw.OnUp();
-			Assert.Equal(x, _player.X);
-			Assert.Equal(y, _player.Y);
+            Assert.Equal(x, _player.X);
+            Assert.Equal(y, _player.Y);
             _rw.OnDown();
-			Assert.Equal(x, _player.X);
-			Assert.Equal(y, _player.Y);
+            Assert.Equal(x, _player.X);
+            Assert.Equal(y, _player.Y);
         }
 
         [Fact]
         public void WrongMapTest()
         {
-			string[] map = { "###",
-							 "# ",
-							 "##"};
+            string[] map = { "###",
+                             "# ",
+                             "##"};
             Exception ex = Assert.Throws<ExceptionMap>(() => new World(map));
             Assert.Equal("ERROR::MAP", ex.Message);
         }
@@ -52,12 +52,12 @@ namespace RougelikeTest
         [Fact]
         public void WrongPlayerTest()
         {
-			string[] map = { "###",
-							 "###",
-							 "###"};
-			World world = new World(map);
+            string[] map = { "###",
+                             "###",
+                             "###"};
+            World world = new World(map);
             Exception ex = Assert.Throws<ExceptionPlayer>(() => new Player(world));
-			Assert.Equal("ERROR::PLAYER::POSITION", ex.Message);
+            Assert.Equal("ERROR::PLAYER::POSITION", ex.Message);
         }
     }
 }
