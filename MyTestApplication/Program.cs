@@ -1,47 +1,44 @@
 ﻿using System;
+using System.IO;
 
 namespace MyTestApplication
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            string path = null;
             if (args.Length == 0)
             {
-                Console.WriteLine("Please enter path to modules!");
-                Environment.Exit(-1);
+                path = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
+                                    "TestModule");
+                Console.WriteLine($"Default path: {path}");
+            } else {
+                path = args[0];
             }
-            TestUnitImpl a = new TestUnitImpl(args[0]);
+            var a = new TestUnitImpl(path);
             var result = a.Start();
+            string message = null;
             foreach (var r in result)
             {
-                if (r.Code == TestUnitImpl.Result.R_OK &&
-                    r.Type == TestUnitImpl.FType.FT_TEST)
+                if (r.Type == FType.TEST_FT) 
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("{0}\tStatus: OK\tTime: {1}",
-                                      r.MethodName,
-                                      r.Time);
-                    Console.ResetColor();
-                }
-                else if (r.Code == TestUnitImpl.Result.R_ERROR &&
-                        r.Type == TestUnitImpl.FType.FT_TEST)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("{0}\tStatus: ERROR\tTime: {1}\tMessage: {2}",
-                                      r.MethodName,
-                                      r.Time,
-                                      r.Other);
-                    Console.ResetColor();
-                }
-                else if (r.Code == TestUnitImpl.Result.R_IGNORE &&
-                        r.Type == TestUnitImpl.FType.FT_TEST)
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("{0}\tStatus: IGNORE\tTime: {1}\tMessage: {2}",
-                                      r.MethodName,
-                                      r.Time,
-                                      r.Other);
+                    switch(r.Code)
+                    {
+                        case Result.OK_R: 
+                            message = $"{r.MethodName}\tStatus: OK\tTime: {r.Time}";
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            break;
+                        case Result.ERROR_R:
+                            message = $"{r.MethodName}\tStatus: ERROR\tTime: {r.Time}\tMessage: {r.Other}";
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            break;
+                        case Result.IGNORE_R:
+                            message = $"{r.MethodName}\tStatus: IGNORE\tTime: {r.Time}\tMessage: {r.Other}";
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            break;
+                    }
+                    Console.WriteLine(message);
                     Console.ResetColor();
                 }
             }

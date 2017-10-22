@@ -1,32 +1,24 @@
-using System;
 using System.Collections.Generic;
 using Xunit;
 using System.IO;
+using MyTestApplication;
+using System.Linq;
 
 namespace TestMyNUnit
 {
     public class UnitTest1
     {
-        List<MyTestApplication.TestUnitImpl.Status> GetResult(string path)
+
+        private readonly List<TestUnitImpl.Status> rTest;
+
+        private List<TestUnitImpl.Status> GetResult(string path)
         {
-            MyTestApplication.TestUnitImpl unit = new MyTestApplication.TestUnitImpl(path);
+            TestUnitImpl unit = new TestUnitImpl(path);
             return unit.Start();
         }
 
-        int GetCount(MyTestApplication.TestUnitImpl.FType ft, MyTestApplication.TestUnitImpl.Result r)
-        {
-            int fc = 0;
-            foreach (var i in rTest)
-            {
-                if (i.Type == ft && i.Code == r)
-                {
-                    fc++;
-                }
-            }
-            return fc;
-        }
-
-        List<MyTestApplication.TestUnitImpl.Status> rTest;
+        private int GetCount(FType fileType, Result result) 
+            => rTest.Count(i => i.Type == fileType && i.Code == result);
 
         public UnitTest1()
         {
@@ -36,70 +28,56 @@ namespace TestMyNUnit
         [Fact]
         public void TestAfter()
         {
-            int fc = 0;
             int check = 4;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_AFTER,
-                          MyTestApplication.TestUnitImpl.Result.R_OK);
+            int fc = GetCount(FType.AFTER_FT, Result.OK_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestBefore()
         {
-            int fc = 0;
             int check = 4;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_BEFORE,
-                          MyTestApplication.TestUnitImpl.Result.R_OK);
+            int fc = GetCount(FType.BEFORE_FT, Result.OK_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestAfterClass()
         {
-            int fc = 0;
             int check = 1;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_AFTERCLASS,
-                          MyTestApplication.TestUnitImpl.Result.R_OK);
+            int fc = GetCount(FType.AFTERCLASS_FT, Result.OK_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestBeforeClass()
         {
-            int fc = 0;
             int check = 1;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_BEFORECLASS,
-                          MyTestApplication.TestUnitImpl.Result.R_OK);
+            int fc = GetCount(FType.BEFORECLASS_FT, Result.OK_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestMethodTestOK()
         {
-            int fc = 0;
             int check = 2;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_TEST,
-                          MyTestApplication.TestUnitImpl.Result.R_OK);
+            int fc = GetCount(FType.TEST_FT, Result.OK_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestMethodTestFail()
         {
-            int fc = 0;
             int check = 1;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_TEST,
-                          MyTestApplication.TestUnitImpl.Result.R_ERROR);
+            int fc = GetCount(FType.TEST_FT, Result.ERROR_R);
             Assert.Equal(fc, check);
         }
 
         [Fact]
         public void TestMethodTestIgnore()
         {
-            int fc = 0;
             int check = 1;
-            fc = GetCount(MyTestApplication.TestUnitImpl.FType.FT_TEST,
-                          MyTestApplication.TestUnitImpl.Result.R_IGNORE);
+            int fc = GetCount(FType.TEST_FT, Result.IGNORE_R);
             Assert.Equal(fc, check);
         }
     }

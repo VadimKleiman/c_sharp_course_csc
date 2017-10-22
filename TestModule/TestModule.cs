@@ -1,16 +1,22 @@
 ﻿using System;
+using MyTestApplication;
+using System.Threading;
 
 namespace TestModule
 {
     public class FirstModule
     {
-        public int CountBefore;
-        public int CountAfter;
-        public int CountBeforeClass;
-        public int CountAfterClass;
+        private int CountBefore;
+        private int CountAfter;
+        private int CountBeforeClass;
+        private int CountAfterClass;
 
         [Test]
-        public void TestMethodTrue() => MyAssert.EqualsValues(1, 1);
+        public void TestMethodTrue()
+        {
+            Thread.Sleep(150);
+            MyAssert.EqualsValues(1, 1);
+        }
 
         [Test]
         public void TestMethodFalse() => MyAssert.EqualsValues(1, 2);
@@ -30,7 +36,7 @@ namespace TestModule
         [After]
         public void TestAfter()
         {
-            --CountAfter;
+            ++CountAfter;
         }
 
         [BeforeClass]
@@ -42,9 +48,9 @@ namespace TestModule
         [AfterClass]
         public void TestAfterClass()
         {
-            --CountAfterClass;
+            ++CountAfterClass;
         }
+
+        public void Empty() {}
     }
-
-
 }

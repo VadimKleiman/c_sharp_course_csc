@@ -7,70 +7,129 @@ using System.Diagnostics;
 
 namespace MyTestApplication
 {
+    public enum Result
+    {
+        OK_R,
+        ERROR_R,
+        IGNORE_R
+    };
+
+    public enum FType
+    {
+        BEFORE_FT,
+        AFTER_FT,
+        AFTERCLASS_FT,
+        BEFORECLASS_FT,
+        TEST_FT
+    };
+
     public sealed class TestUnitImpl
     {
         public sealed class Status
         {
-            public Status(string MethodName,
-                          Result Code,
-                          FType Type,
-                          long Time,
-                          string Other)
+            public Status(string methodName,
+                          Result code,
+                          FType type,
+                          long time,
+                          string other)
             {
-                this.MethodName = MethodName;
-                this.Code = Code;
-                this.Type = Type;
-                this.Time = Time;
-                this.Other = Other;
+                MethodName = methodName;
+                Code = code;
+                Type = type;
+                Time = time;
+                Other = other;
             }
 
-            public string MethodName { get; set; }
-            public Result Code { get; set; }
-            public FType Type { get; set; }
-            public long Time { get; set; }
-            public string Other { get; set; }
+            public string MethodName { get; }
+            public Result Code { get; }
+            public FType Type { get; }
+            public long Time { get; }
+            public string Other { get; }
         }
 
-        public enum Result
-        {
-            R_OK,
-            R_ERROR,
-            R_IGNORE
-        };
-
-        public enum FType
-        {
-            FT_BEFORE,
-            FT_AFTER,
-            FT_AFTERCLASS,
-            FT_BEFORECLASS,
-            FT_TEST
-        };
-
-        string[] filePaths;
+        readonly string[] filePaths;
 
         public TestUnitImpl(string path)
         {
-            filePaths = Directory.GetFiles(@path,
+            filePaths = Directory.GetFiles(path,
                                            "*.dll",
                                            SearchOption.AllDirectories);
         }
 
-        void StartMethodType(List<Status> result,
+        public List<Status> Start()
+        {
+            List<Status> result = new List<Status>();
+            foreach (var module in filePaths)
+            {
+                Assembly dll = Assembly.LoadFile(module);
+                foreach (var type in dll.GetTypes())
+                {
+                    var before = GetMethods(type, typeof(Before));
+                    var after = GetMethods(type, typeof(After));
+                    var beforeClass = GetMethods(type, typeof(BeforeClass));
+                    var afterClass = GetMethods(type, typeof(AfterClass));
+                    var methods = GetMethods(type, typeof(Test));
+                    if (!methods.Any())
+                    {
+                        continue;
+                    }
+                    var instance = Activator.CreateInstance(type);
+                    StartMethodType(result,
+                                    beforeClass,
+                                    instance,
+                                    FType.BEFORECLASS_FT);
+                    foreach (var m in methods)
+                    {
+                        StartMethodType(result,
+                                        before,
+                                        instance,
+                                        FType.BEFORE_FT);
+                        var nameArgs = m.GetCustomAttributesData()[0].NamedArguments;
+                        if (nameArgs.Any() && nameArgs[0].TypedValue.Value is string)
+                        {
+                            result.Add(new Status(m.Name,
+                                                  Result.IGNORE_R,
+                                                  FType.TEST_FT,
+                                                  0,
+                                                  (string)nameArgs[0].TypedValue.Value));
+                        }
+                        else
+                        {
+                            StartMethodType(result,
+                                            new List<MethodInfo> { m },
+                                            instance,
+                                            FType.TEST_FT);
+                        }
+                        StartMethodType(result,
+                                        after,
+                                        instance,
+                                        FType.AFTER_FT);
+                    }
+                    StartMethodType(result,
+                                    afterClass,
+                                    instance,
+                                    FType.AFTERCLASS_FT);
+                }
+
+            }
+            return result;
+        }
+
+        private void StartMethodType(List<Status> result,
                              IEnumerable<MethodInfo> methods,
                              object instance,
                              FType type)
         {
             Stopwatch sw = null;
+            sw = Stopwatch.StartNew();
             foreach (var method in methods)
             {
                 try
                 {
                     sw = Stopwatch.StartNew();
                     method.Invoke(instance, null);
-                    sw.Stop();
                     result.Add(new Status(method.Name,
-                                          Result.R_OK,
+                                          Result.OK_R,
                                           type,
                                           sw.ElapsedMilliseconds,
                                           null));
@@ -81,90 +140,29 @@ namespace MyTestApplication
                     if (nameArgs.Any() && (Type)nameArgs[0]
                                 .TypedValue.Value == ex.InnerException.GetType())
                     {
-                        sw.Stop();
                         result.Add(new Status(method.Name,
-                                          Result.R_OK,
+                                          Result.OK_R,
                                           type,
                                           sw.ElapsedMilliseconds,
                                           null));
                     }
                     else
                     {
-                        sw.Stop();
                         result.Add(new Status(method.Name,
-                                          Result.R_ERROR,
+                                          Result.ERROR_R,
                                           type,
                                           sw.ElapsedMilliseconds,
                                           ex.InnerException.ToString()));
                     }
-                }
-            }
-        }
-
-        public List<Status> Start()
-        {
-            List<Status> result = new List<Status>();
-            foreach (var module in filePaths)
-            {
-                Assembly dll = Assembly.LoadFile(@module);
-                foreach (var type in dll.GetTypes())
+                } 
+                finally
                 {
-                    var before = GetMethods(type, typeof(Before));
-                    var after = GetMethods(type, typeof(After));
-                    var beforeClass = GetMethods(type, typeof(BeforeClass));
-                    var afterClass = GetMethods(type, typeof(AfterClass));
-                    var methods = GetMethods(type, typeof(Test));
-                    if (!methods.Any())
-                        continue;
-                    var instance = Activator.CreateInstance(type);
-                    StartMethodType(result,
-                                    beforeClass,
-                                    instance,
-                                    FType.FT_BEFORECLASS);
-                    foreach (var m in methods)
-                    {
-                        StartMethodType(result,
-                                        before,
-                                        instance,
-                                        FType.FT_BEFORE);
-                        var nameArgs = m.GetCustomAttributesData()[0].NamedArguments;
-                        if (nameArgs.Any() && nameArgs[0].TypedValue.Value is string)
-                        {
-                            result.Add(new Status(m.Name,
-                                                  Result.R_IGNORE,
-                                                  FType.FT_TEST,
-                                                  0,
-                                                  (string)nameArgs[0].TypedValue.Value));
-                        }
-                        else
-                        {
-                            StartMethodType(result,
-                                            new List<MethodInfo> { m },
-                                            instance,
-                                            FType.FT_TEST);
-                        }
-                        StartMethodType(result,
-                                        after,
-                                        instance,
-                                        FType.FT_AFTER);
-                    }
-                    StartMethodType(result,
-                                    afterClass,
-                                    instance,
-                                    FType.FT_AFTERCLASS);
+                    sw.Reset();
                 }
-
             }
-            return result;
         }
 
-        IEnumerable<MethodInfo> GetMethods(Type instance,
-                                           Type attr)
-        {
-            var methods = from method in instance.GetMethods()
-                          where method.IsDefined(attr)
-                          select method;
-            return methods;
-        }
+        private MethodInfo[] GetMethods(Type instance, Type attr) 
+            => instance.GetMethods().Where(method => method.IsDefined(attr)).ToArray();
     }
 }

@@ -1,20 +1,21 @@
 ﻿using System;
 
-public sealed class TestException : Exception
+namespace MyTestApplication
 {
-    public TestException(Object actual, Object expected)
+    public sealed class TestException : Exception
     {
-        this.actual = actual;
-        this.expected = expected;
-    }
+        public TestException(Object actual, Object expected)
+        {
+            _actual = actual;
+            _expected = expected;
+        }
 
-    public override string ToString()
-    {
-        return string.Format("[TestException: actual={0}, expected={1}]",
-                             actual,
-                             expected);
-    }
+        public override string ToString()
+        {
+            return string.Format($"[TestException: actual={_actual}, expected={_expected}]");
+        }
 
-    private Object actual;
-    private Object expected;
+        private Object _actual;
+        private Object _expected;
+    }
 }
