@@ -1,18 +1,25 @@
 ﻿using System;
 
-namespace Option
+namespace OptionNS
 {
     public sealed class Option<T>
     {
-        static public Option<T> Some(T value) => new Option<T>(value, true);
+        public static Option<T> Some(T value) => new Option<T>(value, true);
 
-        static public Option<T> None() => new Option<T>(default(T), false);
+        public static Option<T> None() => _none;
 
-        static public Option<T> Flatten(Option<Option<T>> o) => o.Value;
+        public static Option<T> Flatten(Option<Option<T>> o)
+        {
+            if (o == null)
+            {
+                return _none;
+            }
+            return o.Value;
+        }
 
-        public bool IsNone { get => !IsSome; }
+        public bool IsNone => !IsSome; 
 
-        public bool IsSome { get => isValue; }
+        public bool IsSome => _hasValue;
 
         public T Value
         {
@@ -20,21 +27,21 @@ namespace Option
             {
                 if (IsNone)
                 {
-                    throw new Exception();
+                    throw new OptionException("Value is none!");
                 }
-                return value;
+                return _value;
             }
         }
 
-        public Option<U> Map<U>(Func<T, U> func) => IsNone ?
-            Option<U>.None() : Option<U>.Some(func(value));
+        public Option<TResult> Map<TResult>(Func<T, TResult> func) => IsNone ?
+            Option<TResult>.None() : Option<TResult>.Some(func(_value));
 
         public override int GetHashCode() =>
-            value.GetHashCode() ^ isValue.GetHashCode();
+            _value.GetHashCode() ^ _hasValue.GetHashCode();
 
         public override bool Equals(object obj)
         {
-            if ((object)this == obj)
+            if (this == obj)
             {
                 return true;
             }
@@ -43,21 +50,23 @@ namespace Option
             {
                 return false;
             }
-            if (IsNone == other.IsNone == true)
+            if (IsNone == other.IsNone)
             {
                 return true;
             }
-            return other.Value.Equals(value);
+            return other.Value.Equals(_value);
         }
 
         private Option(T val, bool isNone)
         {
-            value = val;
-            isValue = isNone;
+            _value = val;
+            _hasValue = isNone;
         }
 
-        private readonly T value;
+        private readonly T _value;
 
-        private readonly bool isValue;
+        private readonly bool _hasValue;
+
+        private static readonly Option<T> _none = new Option<T>(default(T), false);
     }
 }
