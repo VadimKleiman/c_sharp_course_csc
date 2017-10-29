@@ -5,24 +5,24 @@ namespace Rougelike
     {
         public RenderWorld(World world, Player player)
         {
-            _World = world;
-            _Player = player;
+            _world = world;
+            _player = player;
             View();
         }
 
         private void View()
         {
-            for (int i = 0; i < _World.Map.Length; ++i)
+            for (int i = 0; i < _world.Map.Length; ++i)
             {
-                for (int j = 0; j < _World.Map[i].Length; ++j)
+                for (int j = 0; j < _world.Map[i].Length; ++j)
                 {
                     Console.SetCursorPosition(j, i);
-                    Console.Write(_World.Map[i][j]);
+                    Console.Write(_world.Map[i][j]);
                 }
             }
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.SetCursorPosition(_Player.Y, _Player.X);
-            Console.Write(_Player.Icon);
+            Console.SetCursorPosition(_player.Y, _player.X);
+            Console.Write(_player.Icon);
             Console.ResetColor();
             Console.SetCursorPosition(0, 0);
         }
@@ -53,11 +53,11 @@ namespace Rougelike
 
         private void MoveTo(int dx, int dy)
         {
-            _Player.SetX(dx);
-            _Player.SetY(dy);
+            _player.SetX(dx);
+            _player.SetY(dy);
         }
 
-        private World _World;
-        private Player _Player;
+        private World _world;
+        private Player _player;
     }
 }

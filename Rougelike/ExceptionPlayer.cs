@@ -5,6 +5,7 @@ namespace Rougelike
     {
         public ExceptionPlayer(string message) : base(message)
         {
+            
         }
     }
 }

@@ -31,10 +31,10 @@ namespace Rougelike
 
         public void SetY(int dy)
         {
-			if (_world.Map[X][Y + dy] != '#')
-			{
-				Y = Y + dy;
-			}
+            if (_world.Map[X][Y + dy] != '#')
+            {
+                Y = Y + dy;
+            }
         }
 
         public int X { get; private set; }

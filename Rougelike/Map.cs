@@ -18,17 +18,17 @@ namespace Rougelike
 
         private void InitFreeCell()
         {
-			_freeCell = new List<Tuple<int, int>>();
-			for (int i = 0; i < Map.Length; ++i)
-			{
-				for (int j = 0; j < Map[i].Length; ++j)
-				{
-					if (Map[i][j] == ' ')
-					{
-						_freeCell.Add(new Tuple<int, int>(i, j));
-					}
-				}
-			}
+            _freeCell = new List<Tuple<int, int>>();
+            for (int i = 0; i < Map.Length; ++i)
+            {
+                for (int j = 0; j < Map[i].Length; ++j)
+                {
+                    if (Map[i][j] == ' ')
+                    {
+                        _freeCell.Add(new Tuple<int, int>(i, j));
+                    }
+                }
+            }
         }
 
         public World(string path)
@@ -44,10 +44,10 @@ namespace Rougelike
         public World(string[] map)
         {
             Map = map;
-			if (!CheckMap())
-			{
+            if (!CheckMap())
+            {
                 throw new ExceptionMap("ERROR::MAP");
-			}
+            }
             InitFreeCell();
         }
 

@@ -4,14 +4,14 @@ namespace Rougelike
 {
     class EventLoop
     {
-		public event Action LeftHandler;
-		public event Action RightHandler;
+        public event Action LeftHandler;
+        public event Action RightHandler;
         public event Action UpHandler;
         public event Action DownHandler;
 
         public void Run()
         {
-            while(true)
+            while (true)
             {
                 var key = Console.ReadKey(true);
                 switch (key.Key)
