@@ -59,29 +59,32 @@ namespace PrimeNumber
         {
             foreach (var f in _futures)
             {
-                if (f.CurrentTask.Status == TaskStatus.Running)
-                {
-                    f.Cancel.Visible = f.Progress.Visible = true;
-                    f.Progress.Value = f.Data.CurrentProgress;
-                    f.Status.Text = f.CurrentTask.Status.ToString();
-                }
-                else
-                {
-                    f.Cancel.Visible = f.Progress.Visible = false;
-                }
                 if (f.Data.Token.IsCancellationRequested)
                 {
                     f.Status.Text = @"Cancel";
+                    f.Progress.Visible = f.Result.Visible = f.Cancel.Visible = false;
                 }
-                else if (f.CurrentTask.IsCompleted)
+                else
                 {
-                    f.Result.Text = f.Data.Result.ToString();
-                    f.Result.Visible = true;
-                    f.Status.Text = @"Finish";
-                }
-                else if (f.CurrentTask.Status == TaskStatus.WaitingToRun)
-                {
-                    f.Status.Text = @"Waiting";
+                    switch (f.CurrentTask.Status)
+                    {
+                        case TaskStatus.Running:
+                            f.Cancel.Visible = f.Progress.Visible = true;
+                            f.Progress.Value = f.Data.CurrentProgress;
+                            f.Status.Text = @"Running";
+                            break;
+                        case TaskStatus.WaitingToRun:
+                            f.Cancel.Visible = true;
+                            f.Progress.Visible = f.Result.Visible = false;
+                            f.Status.Text = @"Waiting";
+                            break;
+                        case TaskStatus.RanToCompletion:
+                            f.Result.Text = f.Data.Result.ToString();
+                            f.Cancel.Visible = f.Progress.Visible = false;
+                            f.Result.Visible = true;
+                            f.Status.Text = @"Finish";
+                            break;
+                    }
                 }
             }
         }
@@ -95,7 +98,7 @@ namespace PrimeNumber
             var status = new Label() {Width = 50};
             var result = new Label() {Width = 50, Visible = false};
             var progress = new ProgressBar() {Minimum = 0, Maximum = value, Width = 130, Visible = false};
-            var cancel = new Button() {Text = @"Cancel", Visible = false};
+            var cancel = new Button() {Text = @"Cancel", Visible = true};
             cancel.Click += (ss, ee) => { cancelTokenSource.Cancel(); };
             var panel = new FlowLayoutPanel() {Height = 30, Width = 300};
             panel.Controls.Add(status);
