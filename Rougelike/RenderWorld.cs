@@ -3,28 +3,17 @@ namespace Rougelike
 {
     public class RenderWorld
     {
-        public RenderWorld(World world, Player player)
+        public RenderWorld(World world, Player player, IDisplay display)
         {
             _world = world;
             _player = player;
+            _display = display;
             View();
         }
 
         private void View()
         {
-            for (int i = 0; i < _world.Map.Length; ++i)
-            {
-                for (int j = 0; j < _world.Map[i].Length; ++j)
-                {
-                    Console.SetCursorPosition(j, i);
-                    Console.Write(_world.Map[i][j]);
-                }
-            }
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.SetCursorPosition(_player.Y, _player.X);
-            Console.Write(_player.Icon);
-            Console.ResetColor();
-            Console.SetCursorPosition(0, 0);
+            _display.View(_world, _player);
         }
 
         public void OnLeft()
@@ -51,6 +40,11 @@ namespace Rougelike
             View();
         }
 
+        public bool IsWin()
+        {
+            return _player.IsWin;
+        }
+
         private void MoveTo(int dx, int dy)
         {
             _player.SetX(dx);
@@ -59,5 +53,6 @@ namespace Rougelike
 
         private World _world;
         private Player _player;
+        private IDisplay _display;
     }
 }

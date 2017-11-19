@@ -1,59 +1,70 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Rougelike
 {
-    class EventLoop
-    {
-        public event Action LeftHandler;
-        public event Action RightHandler;
-        public event Action UpHandler;
-        public event Action DownHandler;
-
-        public void Run()
-        {
-            while (true)
-            {
-                var key = Console.ReadKey(true);
-                switch (key.Key)
-                {
-                    case ConsoleKey.LeftArrow:
-                        LeftHandler?.Invoke();
-                        break;
-                    case ConsoleKey.RightArrow:
-                        RightHandler?.Invoke();
-                        break;
-                    case ConsoleKey.UpArrow:
-                        UpHandler?.Invoke();
-                        break;
-                    case ConsoleKey.DownArrow:
-                        DownHandler?.Invoke();
-                        break;
-                    case ConsoleKey.Escape:
-                        Environment.Exit(0);
-                        break;
-                }
-            }
-        }
-    }
-
     class Program
     {
+
         static void Main(string[] args)
         {
+            string path = null;
             if (args.Length < 1)
             {
-                Console.WriteLine("Please enter path to file!");
-                Environment.Exit(-1);
+                path = "Map.txt";
             }
-            World world = new World(@args[0]);
+            else
+            {
+                path = args[0];
+            }
+            Console.CancelKeyPress += Console_CancelKeyPress;
+            World world = new World(path);
             Player player = new Player(world);
-            RenderWorld e = new RenderWorld(world, player);
-            var eventLoop = new EventLoop();
-            eventLoop.LeftHandler += e.OnLeft;
-            eventLoop.RightHandler += e.OnRight;
-            eventLoop.UpHandler += e.OnUp;
-            eventLoop.DownHandler += e.OnDown;
-            eventLoop.Run();
+            IDisplay display = new ConsoleView();
+            RenderWorld e = new RenderWorld(world, player, display);
+            var taskKeys = new Task(() => ReadKeys(e));
+            taskKeys.Start();
+            var tasks = new[] { taskKeys };
+            Task.WaitAll(tasks);
+        }
+
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            Environment.Exit(0);
+        }
+        private static void ReadKeys(RenderWorld rw)
+        {
+            ConsoleKeyInfo key = new ConsoleKeyInfo();
+            while (!Console.KeyAvailable && key.Key != ConsoleKey.Escape)
+            {
+                key = Console.ReadKey(true);
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        rw.OnUp();
+                        break;
+                    case ConsoleKey.DownArrow:
+                        rw.OnDown();
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        rw.OnRight();
+                        break;
+
+                    case ConsoleKey.LeftArrow:
+                        rw.OnLeft();
+                        break;
+
+                    case ConsoleKey.Escape:
+                        break;
+                }
+                if (rw.IsWin())
+                {
+                    Console.Clear();
+                    Console.WriteLine("You Win!");
+                    break;
+                }
+            }
         }
     }
 }

@@ -6,18 +6,25 @@ namespace RougelikeTest
 {
     public class UnitTest
     {
-        private World _world;
         private Player _player;
         private RenderWorld _rw;
+        private class DisplayEmpty : IDisplay
+        {
+            public void View(World w, Player p)
+            {
+                
+            }
+        }
 
         public UnitTest()
         {
             string[] map = { "###",
                              "# #",
                              "###"};
-            _world = new World(map);
-            _player = new Player(_world);
-            _rw = new RenderWorld(_world, _player);
+            World world = new World(map);
+            _player = new Player(world);
+            IDisplay display = new DisplayEmpty();
+            _rw = new RenderWorld(world, _player, display);
         }
 
         [Fact]
@@ -45,7 +52,7 @@ namespace RougelikeTest
             string[] map = { "###",
                              "# ",
                              "##"};
-            Exception ex = Assert.Throws<ExceptionMap>(() => new World(map));
+            Exception ex = Assert.Throws<MapException>(() => new World(map));
             Assert.Equal("ERROR::MAP", ex.Message);
         }
 
@@ -56,8 +63,22 @@ namespace RougelikeTest
                              "###",
                              "###"};
             World world = new World(map);
-            Exception ex = Assert.Throws<ExceptionPlayer>(() => new Player(world));
+            Exception ex = Assert.Throws<PlayerException>(() => new Player(world));
             Assert.Equal("ERROR::PLAYER::POSITION", ex.Message);
+        }
+        [Fact]
+        public void WinTest()
+        {
+            string[] map = { "###",
+                             "#  ",
+                             "###"};
+            World world = new World(map);
+            Player player = new Player(world);
+            IDisplay display = new DisplayEmpty();
+            RenderWorld rw = new RenderWorld(world, player, display);
+            rw.OnRight();
+            rw.OnRight();
+            Assert.True(rw.IsWin());
         }
     }
 }

@@ -1,9 +1,19 @@
 ﻿using System;
 namespace Rougelike
 {
-    public class ExceptionPlayer : Exception
+    public class PlayerException : Exception
     {
-        public ExceptionPlayer(string message) : base(message)
+        public PlayerException(string message) : base(message)
+        {
+            
+        }
+
+        public PlayerException()
+        {
+            
+        }
+
+        public PlayerException(string message, Exception e) : base(message, e)
         {
             
         }

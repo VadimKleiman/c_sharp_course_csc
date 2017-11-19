@@ -1,9 +1,19 @@
 ﻿using System;
 namespace Rougelike
 {
-    public class ExceptionMap : Exception
+    public class MapException : Exception
     {
-        public ExceptionMap(string message) : base(message)
+        public MapException(string message) : base(message)
+        {
+
+        }
+
+        public MapException()
+        {
+
+        }
+
+        public MapException(string message, Exception e) : base(message, e)
         {
 
         }

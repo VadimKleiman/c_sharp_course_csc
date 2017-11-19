@@ -7,25 +7,29 @@ namespace Rougelike
 {
     public class World
     {
+        private const char WALL = '#';
+
         private bool CheckMap()
         {
             int len = Map[0].Length;
-            return Map.All(s => s.StartsWith("#", StringComparison.CurrentCulture)
-                     && s.EndsWith("#", StringComparison.CurrentCulture)
-                     && s.Length == len
-                     && s.All(ch => ch == '#' || ch == ' '));
+            if (Map.Length < 3)
+            {
+                return false;
+            }
+            return Map.All(s => s.Length == len && s.Length > 2
+                     && s.All(ch => ch == WALL || ch == ' '));
         }
 
         private void InitFreeCell()
         {
-            _freeCell = new List<Tuple<int, int>>();
+            _freeCell = new List<(int, int)>();
             for (int i = 0; i < Map.Length; ++i)
             {
                 for (int j = 0; j < Map[i].Length; ++j)
                 {
                     if (Map[i][j] == ' ')
                     {
-                        _freeCell.Add(new Tuple<int, int>(i, j));
+                        _freeCell.Add((i, j));
                     }
                 }
             }
@@ -33,10 +37,14 @@ namespace Rougelike
 
         public World(string path)
         {
-            Map = File.ReadAllLines(@path);
+            if (!File.Exists(path))
+            {
+                throw new IOException("Can't read file: " + path);
+            }
+            Map = File.ReadAllLines(path);
             if (!CheckMap())
             {
-                throw new ExceptionMap("ERROR::MAP");
+                throw new MapException("ERROR::MAP");
             }
             InitFreeCell();
         }
@@ -46,25 +54,25 @@ namespace Rougelike
             Map = map;
             if (!CheckMap())
             {
-                throw new ExceptionMap("ERROR::MAP");
+                throw new MapException("ERROR::MAP");
             }
             InitFreeCell();
         }
 
-        public Tuple<int, int> getFreeCell()
+        public (int, int) GetFreeCell()
         {
             if (!_freeCell.Any())
             {
-                return new Tuple<int, int>(-1, -1);
+                return (-1, -1);
             }
-            Random rnd = new Random();
-            int index = _freeCell.Count() - 1;
-            var result = _freeCell[rnd.Next(index)];
+            var index = _freeCell.Count - 1;
+            var result = _freeCell[_rnd.Next(index)];
             _freeCell.RemoveAt(index);
             return result;
         }
 
         public string[] Map { get; }
-        private List<Tuple<int, int>> _freeCell;
+        private List<(int, int)> _freeCell;
+        private static readonly Random _rnd = new Random();
     }
 }
