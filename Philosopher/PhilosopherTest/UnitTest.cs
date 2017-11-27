@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using Xunit;
+using Philosopher;
 using System.Threading.Tasks;
 
-namespace Philosopher
+namespace PhilosopherTest
 {
-    internal static class Program
+    public class UnitTest
     {
-        private static void Main()
+        [Fact]
+        public void Test1()
         {
             const int count = 50;
             var forks = new List<object>();
@@ -31,6 +34,10 @@ namespace Philosopher
             foreach (var task in tasks)
             {
                 task.Wait();
+            }
+            foreach (var ph in philosophers)
+            {
+                Assert.True(ph.IsDone);
             }
         }
     }
