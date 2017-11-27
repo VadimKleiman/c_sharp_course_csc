@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 
 namespace Queue
 {
@@ -9,7 +8,7 @@ namespace Queue
         private int _writeIndex;
         private int _readIndex;
         private readonly T[] _queue;
-        private readonly Object _myLock = new Object();
+        private readonly object _myLock = new object();
 
         public BlockArrayQueue(int size)
         {
@@ -17,82 +16,72 @@ namespace Queue
             _queue = new T[_size];
             _writeIndex = _readIndex = 0;
         }
-        public bool Enqueue(T value)
+
+        public void Enqueue(T value)
         {
-            lock(_myLock)
+            while(!TryEnqueue(value))
             {
-                return _Enqueue(value);
+                lock (_myLock)
+                {
+                    Monitor.Wait(_myLock);
+                }
             }
         }
 
-        public bool Dequeue(ref T value)
+        public T Dequeue()
         {
-            lock(_myLock)
+            var result = default(T);
+            while(!TryDequeue(ref result))
             {
-                return _Dequeue(ref value);
+                lock (_myLock)
+                {
+                    Monitor.Wait(_myLock);
+                }
             }
+            return result;
         }
 
         public bool TryEnqueue(T value)
         {
-            if (Monitor.TryEnter(_myLock))
+            lock(_myLock)
             {
-                try
+                if ((_writeIndex + 1) % _size == _readIndex % _size)
                 {
-                    return _Enqueue(value);
+                    return false;
                 }
-                finally
-                {
-                    Monitor.Exit(_myLock);
-                }
+                _queue[_writeIndex % _size] = value;
+                ++_writeIndex;
+                Monitor.PulseAll(_myLock);
+                return true;
             }
-            return false;
         }
 
         public bool TryDequeue(ref T value)
         {
-            if (Monitor.TryEnter(_myLock))
+            lock (_myLock)
             {
-                try
+                if (_readIndex % _size == _writeIndex % _size)
                 {
-                    return _Dequeue(ref value);
+                    return false;
                 }
-                finally
-                {
-                    Monitor.Exit(_myLock);
-                }
+                value = _queue[_readIndex % _size];
+                _queue[_readIndex % _size] = default(T);
+                ++_readIndex;
+                Monitor.PulseAll(_myLock);
+                return true;
             }
-            return false;
         }
 
         public void Clear()
         {
             lock(_myLock)
             {
+                for (var i = 0; i < _queue.Length; ++i)
+                {
+                    _queue[i] = default(T);
+                }
                 _writeIndex = _readIndex = 0;
             }
-        }
-
-        private bool _Enqueue(T value)
-        {
-            if ((_writeIndex + 1) % _size == _readIndex % _size)
-            {
-                return false;
-            }
-            _queue[_writeIndex % _size] = value;
-            ++_writeIndex;
-            return true;
-        }
-
-        private bool _Dequeue(ref T value)
-        {
-            if (_readIndex % _size == _writeIndex % _size)
-            {
-                return false;
-            }
-            value = _queue[_readIndex % _size];
-            ++_readIndex;
-            return true;
         }
     }
 }

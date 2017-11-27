@@ -6,112 +6,139 @@ namespace QueueTest
 {
     public class QTest
     {
-        private const int threadCount = 50;
-        private const int iter = 1000;
+        private const int ThreadCount = 50;
+        private const int Iter = 1000;
         
-        private IArrayQueue<int> q;
+        private IArrayQueue<int> _queue;
 
         private void Enqueue()
         {
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                Assert.True(q.Enqueue(i));
+                Assert.True(_queue.TryEnqueue(i));
             }
-            Assert.False(q.Enqueue(42));
+            Assert.False(_queue.TryEnqueue(42));
         }
 
         private void Dequeue()
         {
-            int check = 0;
-            for (int i = 0; i < 10; i++)
+            var check = 0;
+            for (var i = 0; i < 10; i++)
             {
-                Assert.True(q.Dequeue(ref check));
+                Assert.True(_queue.TryDequeue(ref check));
                 Assert.Equal(check, i);
             }
         }
 
-        private void EnqueueMultiThread()
+        private void TryEnqueueMultiThread()
         {
-            var threads = new Thread[threadCount];
-            for (int i = 0; i < threadCount; i++)
+            var threads = new Thread[ThreadCount];
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(() => {
-                    for (int j = 0; j < iter; j++)
+                    for (var j = 0; j < Iter; j++)
                     {
-                        q.Enqueue(j);
+                        _queue.TryEnqueue(j);
                     }
                 });
             }
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i].Start();
             }
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i].Join();
             }
-            int []check = new int[iter];
-            int tmp = 0;
-            while (q.Dequeue(ref tmp))
+            var check = new int[Iter];
+            var tmp = 0;
+            while (_queue.TryDequeue(ref tmp))
             {
                 ++check[tmp];
             }
-            for (int i = 0; i < iter; i++)
+            for (var i = 0; i < Iter; i++)
             {
-                Assert.Equal(check[i], threadCount);
+                Assert.Equal(check[i], ThreadCount);
             }
         }
 
-        private void DequeueMultiThread()
+        private void TryDequeueMultiThread()
         {
-            var threads = new Thread[threadCount];
-            int check = 0;
-            for (int i = 0; i < threadCount; i++)
+            var threads = new Thread[ThreadCount];
+            var check = 0;
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i] = new Thread(() => {
-                    for (int j = 0; j < iter; j++)
+                    for (var j = 0; j < Iter; j++)
                     {
-                        q.Enqueue(j);
+                        _queue.TryEnqueue(j);
                     }
-                    int ignore = 0;
-                    while (q.Dequeue(ref ignore))
+                    var ignore = 0;
+                    while (_queue.TryDequeue(ref ignore))
                     {
                         Interlocked.Increment(ref check);
                     }
                 });
             }
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i].Start();
             }
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < ThreadCount; i++)
             {
                 threads[i].Join();
             }
-            for (int i = 0; i < iter; i++)
-            {
-                Assert.Equal(check, threadCount * iter);
-            }
+            Assert.Equal(check, ThreadCount * Iter);
         }
+        
+        private void EnqueueDegueueMultiThread()
+        {
+            var threads = new Thread[ThreadCount];
+            var check = 0;
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                threads[i] = new Thread(() => {
+                    for (var j = 0; j < Iter; j++)
+                    {
+                        _queue.Enqueue(j);
+                    }
+                    for (var j = 0; j < Iter; j++) 
+                    {
+                    _queue.Dequeue();
+                    Interlocked.Increment(ref check);
+                    }
+                });
+            }
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                threads[i].Start();
+            }
+            for (var i = 0; i < ThreadCount; i++)
+            {
+                threads[i].Join();
+            }
+            Assert.Equal(check, ThreadCount * Iter);
+        }
+     
 
         [Fact]
         public void LockFreeEnqueueTest()
         {
-            q = new LockFreeArrayQueue<int>(10);
+            _queue = new LockFreeArrayQueue<int>(10);
             Enqueue();
         }
 
         [Fact]
         public void BlockEnqueueTest()
         {
-            q = new BlockArrayQueue<int>(10);
+            _queue = new BlockArrayQueue<int>(10);
             Enqueue();
         }
 
         [Fact]
         public void LockFreeDequeueTest()
         {
-            q = new LockFreeArrayQueue<int>(10);
+            _queue = new LockFreeArrayQueue<int>(10);
             Enqueue();
             Dequeue();
         }
@@ -119,7 +146,7 @@ namespace QueueTest
         [Fact]
         public void BlockDequeueTest()
         {
-            q = new BlockArrayQueue<int>(10);
+            _queue = new BlockArrayQueue<int>(10);
             Enqueue();
             Dequeue();
         }
@@ -127,49 +154,63 @@ namespace QueueTest
         [Fact]
         public void LockFreeClearTest()
         {
-            q = new LockFreeArrayQueue<int>(10);
+            _queue = new LockFreeArrayQueue<int>(10);
             Enqueue();
-            q.Clear();
-            int check = 0;
-            Assert.False(q.Dequeue(ref check));
+            _queue.Clear();
+            var check = 0;
+            Assert.False(_queue.TryDequeue(ref check));
         }
 
         [Fact]
         public void BlockClearTest()
         {
-            q = new BlockArrayQueue<int>(10);
+            _queue = new BlockArrayQueue<int>(10);
             Enqueue();
-            q.Clear();
-            int check = 0;
-            Assert.False(q.Dequeue(ref check));
+            _queue.Clear();
+            var check = 0;
+            Assert.False(_queue.TryDequeue(ref check));
         }
 
         [Fact]
         public void LockFreeEnqueueMultiThreadTest()
         {
-            q = new LockFreeArrayQueue<int>(threadCount * iter);
-            EnqueueMultiThread();
+            _queue = new LockFreeArrayQueue<int>(ThreadCount * Iter);
+            TryEnqueueMultiThread();
         }
 
         [Fact]
         public void BlockEnqueueMultiThreadTest()
         {
-            q = new BlockArrayQueue<int>(threadCount * iter);
-            EnqueueMultiThread();
+            _queue = new BlockArrayQueue<int>(ThreadCount * Iter);
+            TryEnqueueMultiThread();
         }
 
         [Fact]
         public void LockFreeDequeueMultiThreadTest()
         {
-            q = new LockFreeArrayQueue<int>(threadCount * iter);
-            DequeueMultiThread();
+            _queue = new LockFreeArrayQueue<int>(ThreadCount * Iter);
+            TryDequeueMultiThread();
         }
 
         [Fact]
         public void BlockDequeueMultiThreadTest()
         {
-            q = new BlockArrayQueue<int>(threadCount * iter);
-            DequeueMultiThread();
+            _queue = new BlockArrayQueue<int>(ThreadCount * Iter);
+            TryDequeueMultiThread();
+        }
+
+        [Fact]
+        public void BlockTryEnqueueDequeueMultiThreadTest()
+        {
+            _queue = new BlockArrayQueue<int>(ThreadCount * Iter);
+            EnqueueDegueueMultiThread();
+        }
+
+        [Fact]
+        public void LockFreeTryEnqueueDequeueMultiThreadTest()
+        {
+            _queue = new LockFreeArrayQueue<int>(ThreadCount * Iter);
+            EnqueueDegueueMultiThread();
         }
     }
 }

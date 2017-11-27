@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 
 namespace Queue
 {
@@ -22,64 +21,68 @@ namespace Queue
         public void Clear()
         {
             _isCleaning = true;
-            T tmp = default(T);
-            while (Dequeue(ref tmp)) {}
+            var tmp = default(T);
+            while (TryDequeue(ref tmp)) {}
             _isCleaning = false;
         }
 
-        public bool Dequeue(ref T value)
+        public T Dequeue()
         {
-            int currentMRI;
-            int currentRI;
+            var result = default(T);
+            while (!TryDequeue(ref result))
+            {
+                Thread.Yield();
+            }
+            return result;
+        }
+
+        public void Enqueue(T value)
+        {
+            while(!TryEnqueue(value))
+            {
+                Thread.Yield();
+            }
+        }
+
+        public bool TryDequeue(ref T value)
+        {
+            int currentRi;
             do
             {
-                currentRI = _readIndex;
-                currentMRI = _maximumReadIndex;
-                if (currentMRI % _size == currentRI % _size)
+                currentRi = _readIndex;
+                var currentMri = _maximumReadIndex;
+                if (currentMri % _size == currentRi % _size)
                 {
                     return false;
                 }
-                value = _queue[currentRI % _size];
-                if (Interlocked.CompareExchange(ref _readIndex, currentRI + 1, currentRI) == currentRI)
-                {
-                    return true;
-                }
-            } while (true);
+                value = _queue[currentRi % _size];
+            } while (Interlocked.CompareExchange(ref _readIndex, currentRi + 1, currentRi) != currentRi);
+            return true;
         }
 
-        public bool Enqueue(T value)
+        public bool TryEnqueue(T value)
         {
             while (_isCleaning)
             {
                 Thread.Yield();
             }
-            int currentRI;
-            int currentWI;
+            int currentWi;
             do
             {
-                currentRI = _readIndex;
-                currentWI = _writeIndex;
-                if ((currentWI + 1) % _size == currentRI % _size)
+                int currentRi;
+                currentRi = _readIndex;
+                currentWi = _writeIndex;
+                if ((currentWi + 1) % _size == currentRi % _size)
                 {
                     return false;
                 }
-            } while (currentWI != Interlocked.CompareExchange(ref _writeIndex, currentWI + 1, currentWI));
-            _queue[currentWI % _size] = value;
-            while (Interlocked.CompareExchange(ref _maximumReadIndex, currentWI + 1, currentWI) != currentWI)
+            } while (currentWi != Interlocked.CompareExchange(ref _writeIndex, currentWi + 1, currentWi));
+            _queue[currentWi % _size] = value;
+            while (Interlocked.CompareExchange(ref _maximumReadIndex, currentWi + 1, currentWi) != currentWi)
             {
                 Thread.Yield();
             }
             return true;
-        }
-
-        public bool TryDequeue(ref T value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryEnqueue(T value)
-        {
-            throw new NotImplementedException();
         }
     }
 }
